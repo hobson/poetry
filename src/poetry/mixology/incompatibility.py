@@ -52,12 +52,20 @@ class Incompatibility:
                 if ref in by_ref:
                     value = by_ref[ref].intersect(term)
 
-                    # If we have two terms that refer to the same package but have a
-                    # null intersection, they're mutually exclusive, making this
-                    # incompatibility irrelevant, since we already know that mutually
-                    # exclusive version ranges are incompatible. We should never derive
-                    # an irrelevant incompatibility.
-                    err_msg = f"Package '{ref}' is listed as a dependency of itself."
+                    err_msg = f"""
+                        If we have two terms that refer to the same package (ref='{ref}') but have a null
+                        intersection (by_ref[ref]={by_ref[ref]}), they're mutually exclusive, making this incompatibility
+                        irrelevant, since we already know that mutually exclusive version
+                        ranges are incompatible. We should never derive an irrelevant
+                        incompatibility.
+
+                        This can be caused by a self-reference in your dependencies.
+                        Perhaps package '{ref}' is listed as a dependency of itself in pyproject.toml.
+
+                        ref: {ref}
+                        by_ref: {by_ref}
+                        """
+                    err_msg = f"P"
                     assert value is not None, err_msg
                     by_ref[ref] = value
                 else:
